@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Accesso riservato</title>
+<style>
+:root{--bg:#14171d;--panel:#252933;--ink:#efe6cf;--mute:#9a9fae;--gold:#e8c35a;--red:#c0392b;--line:#3a3f4d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#d9d2bf;--panel:#fbf7ea;--ink:#2a2418;--mute:#6d6654;--gold:#8a6a10;--red:#a52a1e;--line:#cfc6ae}}
+:root[data-theme="dark"]{--bg:#14171d;--panel:#252933;--ink:#efe6cf;--mute:#9a9fae;--gold:#e8c35a;--red:#c0392b;--line:#3a3f4d}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:18px/1.6 Georgia,"Times New Roman",serif;display:flex;justify-content:center;padding:24px 16px 40px}
+main{width:100%;max-width:560px}
+h1{font:700 28px/1.2 Georgia,serif;margin:8px 0 6px}
+h2{font:700 22px/1.3 Georgia,serif}
+p{margin:0 0 14px}
+.sub{color:var(--mute)}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-appearance:none;appearance:none;font:700 17px Georgia,serif;cursor:pointer}
+button:focus-visible,.dials input:focus{outline:3px solid #fff3b8;outline-offset:2px}
+[hidden]{display:none!important}
+
+/* ---------- Lucchetto ---------- */
+.padlock{position:relative;width:100%;max-width:480px;margin:6px auto 0}
+.shackle{display:block;width:54%;margin:0 auto -30px;position:relative;z-index:0;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
+.lockbody{position:relative;z-index:1;border-radius:20px;padding:26px 24px 20px;
+background:
+ repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,rgba(0,0,0,.05) 1px 3px),
+ linear-gradient(135deg,#ead58f 0%,#bd9f4a 30%,#dcc06e 55%,#a88a38 80%,#c9ab55 100%);
+border:2px solid #8c722c;
+box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -4px 8px rgba(70,50,10,.45),0 16px 28px rgba(0,0,0,.55)}
+.dials{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 18px}
+.dials input{width:100%;min-width:0;height:66px;font:700 34px/1 "Courier New",monospace;text-align:center;
+background:#0f1218;color:#f1d27a;caret-color:#f1d27a;border:0;border-radius:6px;padding:0 4px;
+box-shadow:inset 0 4px 10px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.4)}
+.lockrow{display:flex;align-items:center;gap:14px}
+#go{background:linear-gradient(#f6dc82,#d6a931);color:#2a2010;border:1px solid #8a6a10;border-radius:8px;padding:8px 20px;
+box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 2px 3px rgba(0,0,0,.45)}
+#go:active{transform:translateY(1px)}
+#err{color:#5a150d;font:700 15px/1.3 Georgia,serif;min-height:20px;margin:0}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+/* ---------- Stanza (contenuto cassetta) ---------- */
+article{background:var(--panel);border-left:4px solid var(--gold);border-radius:6px;padding:20px 22px}
+article h2{font-size:22px;margin:0 0 4px}
+.stamp{color:var(--mute);font-size:15px;margin-bottom:14px}
+.doc{border-top:1px solid var(--line);padding-top:14px;font-style:italic}
+.back{margin-top:18px;background:transparent;color:var(--mute);border:1px solid var(--line);border-radius:8px;padding:12px 20px}
+
+/* ---------- Smartphone ---------- */
+.phone{margin-top:34px}
+.phone h2{margin:0 0 4px}
+.smartphone{width:100%;max-width:300px;margin:22px auto 0;border-radius:42px;padding:10px;border:1px solid #0a0a0b;
+background:linear-gradient(160deg,#41434a,#16171a);box-shadow:inset 0 2px 0 rgba(255,255,255,.15),0 18px 30px rgba(0,0,0,.6)}
+.screen{position:relative;height:540px;border-radius:32px;overflow:hidden;background:#0b0e14;color:#eef0f4;
+font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.screen button{font-family:inherit;font-weight:500}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:86px;height:22px;border-radius:12px;background:#000;z-index:5}
+.view{position:absolute;inset:0;padding:46px 14px 14px;display:flex;flex-direction:column}
+#home{background:radial-gradient(circle at 25% 15%,#2a3a63,#0b0e14 72%)}
+.clock{text-align:center;font-size:46px;font-weight:300;margin-top:20px;line-height:1.1}
+.date{text-align:center;color:#aab3c5;font-size:14px}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:44px;text-align:center}
+.app{background:none;border:0;color:#eef0f4;font-size:12px;padding:0;cursor:pointer}
+.app i{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 auto 6px;border-radius:15px;font-style:normal;font-size:27px;box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.bar{display:flex;align-items:center;gap:6px;padding-bottom:10px;font-weight:600;font-size:16px}
+.bar button{background:none;border:0;color:#7ab8ff;font-size:26px;line-height:1;padding:0 8px 2px 0;cursor:pointer}
+.dots{display:flex;gap:16px;justify-content:center;margin:26px 0 8px}
+.dots span{width:13px;height:13px;border-radius:50%;border:2px solid #8e9bb3}
+.dots span.on{background:#e6edff;border-color:#e6edff}
+.dots.shake{animation:sh .35s}
+.pm{min-height:20px;text-align:center;color:#ff8a80;font-size:13px;margin:0 0 6px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 8px 0}
+.pad button{height:54px;border-radius:27px;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:23px;font-weight:400;cursor:pointer}
+.pad button:active{background:rgba(255,255,255,.25)}
+.pad .ghost{visibility:hidden}
+.vm{display:flex;align-items:center;gap:12px;background:#171c28;border-radius:14px;padding:12px}
+.vm .who{flex:1;min-width:0}
+.vm b{display:block;font-size:15px}
+.vm small{color:#9aa6bd;font-size:12px}
+#vp{flex:none;width:42px;height:42px;border-radius:50%;border:0;background:#2f6fdb;color:#fff;font-size:16px;cursor:pointer}
+.prog{height:4px;border-radius:2px;background:#2a3142;margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:#7ab8ff}
+.note{color:#9aa6bd;font-size:12px;margin:12px 4px 0}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;background:#0c1a15;border-radius:12px;padding:10px}
+.chat .day{align-self:center;background:#1c2b26;color:#9db8ac;font-size:11px;border-radius:8px;padding:2px 9px;margin-bottom:2px}
+.b{max-width:84%;padding:6px 9px 4px;border-radius:10px;font-size:14px}
+.b.in{background:#232a33;align-self:flex-start;border-top-left-radius:2px}
+.b.out{background:#0b5d46;align-self:flex-end;border-top-right-radius:2px}
+.b em{font-style:normal;font-size:12px;color:#7fd3a6;display:block}
+.b small{display:block;text-align:right;font-size:10px;color:#9ab5aa}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:auto;align-content:start}
+.tile{aspect-ratio:1;border:0;border-radius:8px;overflow:hidden;background:#1b2230;color:#8e9bb3;font-size:11px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.viewer{position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 16px 16px;cursor:pointer;text-align:center}
+.viewer img{max-width:100%;max-height:72%;border-radius:8px}
+.viewer p{color:#cfd6e6;font-size:13px;margin:10px 0 0}
+.vc{display:flex;align-items:center;gap:8px;min-width:196px;margin:2px 0}
+.vc button{flex:none;width:32px;height:32px;border-radius:50%;border:0;background:#25d366;color:#06281a;font-size:13px;line-height:1;padding:0;cursor:pointer}
+.vprog{flex:1;height:4px;border-radius:2px;background:#3b4a44;overflow:hidden}
+.vprog i{display:block;height:100%;width:0;background:#7fe0a8}
+.vdur{font-size:11px;color:#a9c4b8;white-space:nowrap}
+audio{display:none}
+</style>
+</head>
+<body>
+<main>
+<section id="lock">
+<h1>Accesso riservato</h1>
+<p class="sub">Tre lucchetti? Siamo seri? Ogni casella ha 2 cifre… diventerò matto.</p>
+<div class="padlock">
+<svg class="shackle" viewBox="0 -26 260 176" aria-hidden="true">
+<defs><linearGradient id="steel" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="260" y2="0">
+<stop offset="0" stop-color="#5b606a"/><stop offset=".3" stop-color="#eef1f5"/><stop offset=".55" stop-color="#9aa0ab"/><stop offset="1" stop-color="#545963"/></linearGradient></defs>
+<path d="M42 150 V82 A88 88 0 0 1 218 82 V150" fill="none" stroke="url(#steel)" stroke-width="30"/>
+<path d="M34 150 V82 A96 96 0 0 1 226 82" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3"/>
+</svg>
+<div class="lockbody">
+<div class="dials" role="group" aria-label="Combinazione">
+<input id="d1" inputmode="numeric" maxlength="2" aria-label="Prima cifra" autocomplete="off">
+<input id="d2" inputmode="numeric" maxlength="2" aria-label="Seconda cifra" autocomplete="off">
+<input id="d3" inputmode="numeric" maxlength="2" aria-label="Terza cifra" autocomplete="off">
+</div>
+<div class="lockrow">
+<button id="go" type="button">Apri</button>
+<p id="err" role="alert"></p>
+</div>
+</div>
+</div>
+
+<div class="phone" id="phone">
+<h2>Telefono di servizio</h2>
+<p class="sub">Lo smartphone di servizio, rimasto in Sala Tecnica. Ogni app ha il suo PIN.</p>
+<div class="smartphone"><div class="screen">
+<div class="island"></div>
+
+<div class="view" id="home">
+<div class="clock">22:14</div><div class="date">Vigilia di Natale</div>
+<div class="apps">
+<button class="app" type="button" data-app="tel"><i style="background:#2f6fdb">📞</i>Telefono</button>
+<button class="app" type="button" data-app="chat"><i style="background:#25d366">💬</i>Messaggi</button>
+<button class="app" type="button" data-app="gal"><i style="background:#d9962b">🖼️</i>Galleria</button>
+</div>
+</div>
+
+<div class="view" id="pinview" hidden>
+<div class="bar"><button type="button" data-home aria-label="Indietro">‹</button><span id="pt"></span></div>
+<div class="dots" id="dots"><span></span><span></span><span></span><span></span></div>
+<p class="pm" id="pm" role="alert"></p>
+<div class="pad" id="pad">
+<button type="button" data-p="1">1</button><button type="button" data-p="2">2</button><button type="button" data-p="3">3</button>
+<button type="button" data-p="4">4</button><button type="button" data-p="5">5</button><button type="button" data-p="6">6</button>
+<button type="button" data-p="7">7</button><button type="button" data-p="8">8</button><button type="button" data-p="9">9</button>
+<button type="button" class="ghost" tabindex="-1" aria-hidden="true"></button><button type="button" data-p="0">0</button><button type="button" id="pdel" aria-label="Cancella">⌫</button>
+</div>
+</div>
+
+<div class="view" id="v-tel" hidden>
+<div class="bar"><button type="button" data-home aria-label="Home">‹</button>Segreteria</div>
+<div class="vm">
+<button type="button" id="vp" aria-label="Riproduci">▶</button>
+<div class="who"><b>Hermes</b><small id="vs">Oggi, 21:10</small><div class="prog"><i id="pg"></i></div></div>
+</div>
+<p class="note">Un solo messaggio vocale in segreteria.</p>
+</div>
+
+<div class="view" id="v-chat" hidden>
+<div class="bar"><button type="button" data-home aria-label="Home">‹</button>Chat recuperata</div>
+<div class="chat" id="chat"></div>
+</div>
+
+<div class="view" id="v-gal" hidden>
+<div class="bar"><button type="button" data-home aria-label="Home">‹</button>Galleria</div>
+<div class="grid" id="grid"></div>
+</div>
+
+<div class="viewer" id="gv" hidden><img id="gi" alt=""><p id="gc"></p></div>
+</div></div>
+</div>
+</section>
+
+<section id="room" hidden>
+<article>
+<h2 id="t"></h2>
+<div class="stamp" id="s"></div>
+<p id="b"></p>
+<p class="doc" id="q"></p>
+</article>
+<button class="back" id="back" type="button">Richiudi la porta</button>
+</section>
+</main>
+
+<audio id="vm" preload="auto"></audio>
+
+<script>
+// ===== DATI CIFRATI (nessun testo segreto in chiaro) =====
+var APPNAME = {"tel":"Telefono","chat":"Messaggi","gal":"Galleria"};
+var MAXFAIL = 5, LOCKMS = 30000;
+var CHAT_DAY = "", CHAT = [], GALLERY = [], pinBusy = false, busy = false;
+var LOCK = {"s":"ExLImSUXLdF/kbWl3Val8w==","n":300000,"b":[{"i":"+ciojg5ZxpgDUE4W","c":"dlFAWP0nOw2QmDHqknX4dIyJjTXxI9SvQ3h7dVavmv6GZ4l1CpLF4jGqzHoX+kFmLN17ySkj5PxJyAEq3ywPnAYUnXk2KK3XKI3vy/OCNDpZ3RVLuft8QpeDLVEIrPATk/ToFI+JlZYbTMqnIXLka8AXaTfXolktf5A2OZggEr4KgO9+pK0xySIJ40R4EneL1RZ5dZWQEt3jmuORp1M/BeSn7uZwKZAH57BJOsuSLZOj8W1QOMXUWIxW1Q64NnONM1mBcV7bRdt/Wvn5pTVZaRx4wVGBcdmRDoOGCWXmLI4BsLiPsuZh29VhHrJsuaGMJ750hNcqlkjYQfZ0RKByJXWWAzJQ1xENaiZwi6VzFzwZnyQc1VkTb7lK9Zuh1H9vsdgDBaa7SMA9HnrdlmJwupG+thwZvl8q/vSyS3Jyd4u0Y43HZidF0SO7QJ9g6hn9W9WEbqypqfJn4LhBzAQ8tzztmzUrgqHfAs53iIEYbxb1sI3a8rKGnlkJ1x+V+Tn4Dg2/x8LdfxdaAaQHtTO+FPAHkkr4WQGKnMDU9xFFID+lGxrVXC/isF/XYGHMf/1I+Zn+jX6nyvQ+v3T1IUKEyS3j4W+xodBc2XC08G/je6hFdMTJ+VOi6MZsLKqhUlu0OzKfMKg/91wXofLd1oeZqP+u+I0FTu+RAvJS5P87qGh5R4v7ED7xrGxyy9FaAKEnw/QrJmE+pmhoCkLacRKe2PWGxkPlBCDtmc6QypL3B8T/rVoFpLIP+s6I+wIc905m0xDnPNbr6RVEocH4yKxkqz+tjeGDaoU2JiNQUDfRuOO8RZD0hxMjW4+RJg8oGx0N0hIzwIzFz8BcnPg1tpLYVPBTvJV8EdNr25t0O7z74fp3mO1HEs4XF62xBEC7XpcuspmPwdQE8c4DxBGW2HeC/a5q9gvdG8pJsjTbIBLoanQiy18ZDO2sGJ2c3YYvCMgHimxvkH412suRoo/F57tDNOYmBmLU183v+6btz40="},{"i":"SbThKArZhm0IrQiK","c":"bQXzXNFiUOrB9mwW0qoQAx3yRyhAVtos7SshiPuhi+Lc62iJBK/iM4dXK9pgS8JtDAROMEL9yEbsMhVFb4hcQDWAA6TlhGUbsYv5R2HfZClodVyJLtkoWUhUJJXaBy5zOBc1+wWuqZm8Z4yhMY6bQszPbtmQXrQ4qUJUDBGj3TWi6cC7O9nzKN+Lgg4peBwc7r30heNPWt8L8DKQrY/h2xNKktqrKqCQqf21AGMO7ijXOE62LC2GGmFTqNDQa1t7RsS96hE7fjS9rHgVswEHFhIfV/Y838ElPp85nCSm0LgAZpDAEV5cBUFVsUmY2ESbG7525N4CY2L718p/ntV01hyxtrYXqAfT+e+N9s9I13aeqJwdPoY3QYJ4flT6JpFMASU/r+Nvw1peLcqkMB6lHv6l+hMorNdkQCDG2xyPQPIODuNmdjTD/dclqdO2LwEjCTiJKGtPMquBdEiCpz7Lr8KDFh5/uF9Lp+B/M6TzjF6uQAC/aUwb8ocCxAj4hKeUE1KW+MA7Kb7A77q/j8R0kF7WdzwA0Yf5M9q6wKNhA37M5/HRoO361Zh9APKAUwX3PC3Szr3ECBaAq7Mrm0NstdkPoQXMV70lKK4MsHLhHZTC8tbGWmybEQ4oXNIO5F4+j54O2Fn9rzu91GEGMJY4gc5p9UpBbUeeDPPCzL2pqkhXn4Mn5FI8vfu5ywMUKu2AZhxjemDjoOUKttcI/qkTVLFGVWdkgBAYQg=="},{"i":"yuY6PlDk8ZNH3oCN","c":"RSeSsEH2SPcTyEj8FvUFNo6ENGWuoTnuf/Nd7UyoAFIeiZe3mbo6629x35rKmvhpH+Xm0l+v0Vu9ddbvbfdnTL42fsLiG5VzOyku8eB9tp61VAm6h/qXDxcFL8iBhwJuCJ35PRy7k11QD0xsYFdg5sGkS9H2yKuql7AqZcoBR3BShWPHrKwPEhbjtAbvCXnbyJdTGE5yq8urfpm+oPw/Rhd+vAV0EOnhBTkzHXzpwSl/iBp6dAYz7FwIA+h7Gq6tCqYUxhKY6CLSmUx4MxzrPBywO6tc/6cxgSvNikuKFTE5qv4FDTuK3n0N8E8RO35L80FUj+zVFWWxxUrVXeImtD5IGvQvq9u2ygx8WwymbQgjjqDUELtjQaEVxzTOiGt7UN13BZnwc20idi8lcXmV4Q/YmUqeRzTVPCRpMXgBOia12qWBn+gdLkGRnJKLXUtVGmpQVCWgphKGw6M2iRlbtDMTwXdP4MS4pAWyHWEo/Z4HUn9i97S7PZuRkAekZtkaZqaUxwu25m0QFGayDcdzF3/LBp2JgUIMGdjicNc084t3C7NXJcqYPFYEjNApt8E70ul+sPOpqWZ+3H7RZCejpU28vXK5Ev/1MsmiT+qT1w=="}]};
+var APPS = {"tel":{"s":"kIlaBndCV6VzbEwMujrUcQ==","n":600000,"i":"vHTfxT5Tn9ygKPsz","c":"z103NtuDsql9JHRlfaDQRriMWl/2uxstVcnbz7cRc/WRONkDnZm9"},"chat":{"s":"DwDU21FxgFmHFPoHrDTRDQ==","n":600000,"i":"HKyqtFfvVOCQS7SS","c":"9nlfI32ZIoyxhF7hjxaQ1yoHu/m9srPkHA+6U+XDuh6EBAF9kfiBW+1lwxNPZHCdDXx6qzqKzs/khSzUVv6NzoO4Wgt2z5mV4qXr/WTSMPYFZwtZgZz7FwGwXVLJ4Hczpi88ickG0watSP1ziJgxQltPX48uyuynTffmMnbd/BqzCA4dfE1QzgkbsEphq3anK/o2pVkVzWKU4jbWI3h7L6VQ42lsdgwHFh1+hyzKYjqWvpHijpEpEKUJag2TtdGT7h138W198KRWQhCGG5yqmAP5cfyo9LJqAh1bHyHuVwa4c+dYqoo+U1F8afInJNXu3JTm52aPtOLgCRJFUSzNFQpkCnAtmp+a8+kuMyv6pWpgan5pIj7F/2ctaOhTQDu/9dhVng9dm0xUJBSz3a7gQc7+SGRcR0eloQHhpiQP2E+h73lLGh6Uc/BkQ9B9r9X5QheJcyF6ZXrr2xR7A71sxefz6pZIU4AK8pSJ1qPskk8zvQYIzcDc/4X0kzkvMLBVlR3vIOidaIUbTtCgfGfHRCmI6jp9LKedeshzCQ2J004YS+xCmyvriXqb9LsDgvlQCIXFqQCV5PI7NRJzz9YqywGHjBJy8IHW2Hoa0Xw4gZ1WUN50rA3EnAk/HQneVKEh+NrQZfb65ZbVXLllYXBk9SwYkb5klGRWk0M04/+wEvfxgw5a+jtN+rrrBN6RDqwizczXMf+4UqzSTkvNZ1fNAIGEQcsD3O/fNcncCvKMTrnjShgVfUQOiYjvw4iK2LHY8ms6ndH+j9/36G2wmAVsgldnSmDFqvS8HUu3tjO2uhHqoNdK2vQH6S1KmqHwRP5X8ZYg1a1lA0UkjHAJsf89IIqWDqkSo9GHoyREyR3WnZVVp2un6z1ziDZqj1gyX5q2uCHoJR4QleLc9h5499Vo1InfersjypP/WaCfOjBQgohqsfgdjXf/fpToziL1vTBvblJb6N5pF2MuBYpSa8dIhk1lXnW57A4Rw41HjvTxJZ3kYFoMGy9JVY1GmBZeeAxA4uecMhyG2IYZZYpRZLYPMWa1fvDkJrSaZGTfCWelmx5N/PI51Nj7dxMtZIWvsG7q7ubnnNAIDgB3iExsnTucB+M6tWaalCjc0eT8uBonG8aKuUu6/yyOy+tAF3kPl/z1VuLt4jhkQcrJH9tFDgutJPaNqxp583cqxzN3AAn/KSQpKBD3/w4pzfyy5fXLehXE/3USpKR4LcWXTiXu4xtO8KKF8b+7DwWPV4C5hu7AP3ov2tOV+R2Vyoovxne7RN21kvWaAGEJhkGDpKLEQbkjXlzwwsCGPS9TZSf9lUCKje1sBaNnC5HO9KfWfhxndxrma1diUxCFzxw3gWcmJCcbpK2XutJXjDgIEmlO3LAv2ac0ImTgKJc0SCw+nFEix5nTL3SACfuuM/4NEZ2P6Jb5SnrMRE8lhBwime02jcA3"},"gal":{"s":"F9oIjEBPEqSWZfHm6LDmQA==","n":600000,"i":"Ub0a1vf+qBtzI2vc","c":"yaXDHyJFVGwvgsaGNziq5rGkMjA+je4TQukSzOGSultD2GUkKNW7FJJ+JB4AFPUtRt19K4MU4Y4BI1NQ62yLey2RQV/qqv2rfosRECidsPrCnhZRtXuuxcEuyFeWfI/ANxlyl228lyPl5cHAVm06nTSMjSAlNd+oT2RDd/zlhqSeNB2G2A3sIu3N2msaw3fgJhQ/p/rtPdN0++Trn0dygGi45iZVON3TkWGwJUzr2b42KKh/sor9WQ+xqJ+fY1syMY5yBhHXgJ1mwYtmu9yj+qr6zrDGRFzzhM+zZyDpQ8Op2sy5WMGIAqU708/lTHhK9/6sdO110g4d5M2hK6iwzovAGing03/fFOUmyA/0K3JDghCOhfSmug=="}};
+function b64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function derive(secret,salt,n){var km=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(salt),iterations:n,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);}
+async function tryDec(key,bl){try{var p=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(bl.i)},key,b64(bl.c));return JSON.parse(new TextDecoder().decode(p));}catch(e){return null;}}
+var $ = function(i){return document.getElementById(i)};
+var ins = [$("d1"),$("d2"),$("d3")];
+async function tryOpen(){
+  if(busy) return;
+  var key = ins.map(function(e){return String(parseInt(e.value,10))}).join("-");
+  var p = null; busy = true; $("err").textContent = "Verifica…";
+  try{
+    var k = await derive(key, LOCK.s, LOCK.n);
+    for(var i = 0; i < LOCK.b.length && !p; i++){ p = await tryDec(k, LOCK.b[i]); }
+  }catch(e){ busy = false; $("err").textContent = "Apri la pagina dal link https del sito."; return; }
+  busy = false;
+  if(!p){
+    $("err").textContent = "Combinazione errata: il lucchetto non cede.";
+    var box = document.querySelector(".dials");
+    box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake");
+    return;
+  }
+  $("err").textContent = "";
+  stopAll();
+  $("t").textContent = p.title; $("s").textContent = p.stamp;
+  $("b").textContent = p.body; $("q").textContent = p.quote;
+  $("lock").hidden = true; $("room").hidden = false; window.scrollTo(0,0);
+}
+$("go").addEventListener("click", tryOpen);
+ins.forEach(function(e,i){
+  e.addEventListener("input", function(){
+    e.value = e.value.replace(/\D/g,"");
+    if(e.value.length===2 && ins[i+1]) ins[i+1].focus();
+  });
+  e.addEventListener("keydown", function(ev){ if(ev.key==="Enter") tryOpen(); });
+});
+$("back").addEventListener("click", function(){
+  ins.forEach(function(e){e.value=""}); $("err").textContent="";
+  $("room").hidden = true; $("lock").hidden = false; ins[0].focus();
+});
+
+// ===== SMARTPHONE =====
+var vm = $("vm");
+var VIEWS = ["home","pinview","v-tel","v-chat","v-gal"];
+var unlocked = {}, fails = {}, until = {}, pinFor = null, buf = "", chatDone = false, galDone = false;
+
+function show(id){ VIEWS.forEach(function(v){ $(v).hidden = (v !== id); }); }
+function goHome(){ try{ vm.pause(); }catch(e){} pauseVoices(); $("gv").hidden = true; show("home"); }
+function stopAll(){ try{ vm.pause(); vm.currentTime = 0; }catch(e){} pauseVoices(); $("gv").hidden = true; show("home"); }
+
+function drawDots(){
+  var d = $("dots").children;
+  for(var i = 0; i < d.length; i++) d[i].className = i < buf.length ? "on" : "";
+}
+function openApp(k){
+  if(unlocked[k]){ enter(k); return; }
+  pinFor = k; buf = ""; drawDots();
+  $("pt").textContent = APPNAME[k] + " · PIN";
+  $("pm").textContent = "";
+  show("pinview");
+}
+function enter(k){
+  show("v-" + k);
+  if(k === "chat") renderChat();
+  if(k === "gal") renderGal();
+}
+async function checkPin(){
+  var k = pinFor, now = Date.now();
+  if(until[k] && until[k] > now){
+    $("pm").textContent = "App bloccata. Riprova tra " + Math.ceil((until[k]-now)/1000) + " s.";
+    buf = ""; drawDots(); return;
+  }
+  var tried = buf, d = null; pinBusy = true; $("pm").textContent = "Verifica…";
+  try{ var a = APPS[k]; d = await tryDec(await derive(tried, a.s, a.n), a); }catch(e){}
+  pinBusy = false;
+  if(d){
+    if(k === "tel") vm.src = d.vm;
+    if(k === "chat"){ CHAT_DAY = d.day; CHAT = d.chat; }
+    if(k === "gal"){ GALLERY = d.gal; }
+    unlocked[k] = true; fails[k] = 0; $("pm").textContent = ""; enter(k); return;
+  }
+  fails[k] = (fails[k] || 0) + 1;
+  if(fails[k] >= MAXFAIL){ fails[k] = 0; until[k] = now + LOCKMS; $("pm").textContent = "Troppi tentativi. App bloccata per " + (LOCKMS/1000) + " secondi."; }
+  else { $("pm").textContent = "PIN errato."; }
+  var dots = $("dots"); dots.classList.remove("shake"); void dots.offsetWidth; dots.classList.add("shake");
+  buf = ""; drawDots();
+}
+
+var voices = [];
+function pauseVoices(except){ voices.forEach(function(a){ if(a !== except){ try{ a.pause(); }catch(e){} } }); }
+function makeVoice(src){
+  var au = new Audio(); au.preload = "metadata"; au.src = src; voices.push(au);
+  var row = document.createElement("div"); row.className = "vc";
+  var btn = document.createElement("button"); btn.type = "button"; btn.textContent = "▶"; btn.setAttribute("aria-label","Riproduci messaggio vocale");
+  var pr = document.createElement("div"); pr.className = "vprog"; var bar = document.createElement("i"); pr.appendChild(bar);
+  var du = document.createElement("span"); du.className = "vdur"; du.textContent = "0:00";
+  function lab(){ du.textContent = fmt(au.currentTime) + (isFinite(au.duration) ? " / " + fmt(au.duration) : ""); }
+  btn.addEventListener("click", function(){
+    if(au.paused){
+      pauseVoices(au); try{ vm.pause(); }catch(e){}
+      var pp = au.play();
+      if(pp && pp.catch) pp.catch(function(){ du.textContent = "Non riproducibile"; });
+    } else { au.pause(); }
+  });
+  au.addEventListener("play", function(){ btn.textContent = "⏸"; });
+  au.addEventListener("pause", function(){ btn.textContent = "▶"; });
+  au.addEventListener("ended", function(){ au.currentTime = 0; bar.style.width = "0"; lab(); });
+  au.addEventListener("loadedmetadata", lab);
+  au.addEventListener("timeupdate", function(){
+    if(isFinite(au.duration) && au.duration > 0) bar.style.width = (au.currentTime / au.duration * 100) + "%";
+    lab();
+  });
+  au.addEventListener("error", function(){ du.textContent = "File audio non trovato"; });
+  row.appendChild(btn); row.appendChild(pr); row.appendChild(du);
+  return row;
+}
+function renderChat(){
+  if(chatDone) return; chatDone = true;
+  var c = $("chat"), day = document.createElement("div");
+  day.className = "day"; day.textContent = CHAT_DAY; c.appendChild(day);
+  CHAT.forEach(function(x){
+    var b = document.createElement("div"); b.className = "b " + x.w;
+    var n = document.createElement("em"); n.textContent = x.n; b.appendChild(n);
+    if(x.a){ b.appendChild(makeVoice(x.a)); }
+    else { var m = document.createElement("span"); m.textContent = x.m; b.appendChild(m); }
+    var t = document.createElement("small"); t.textContent = x.t; b.appendChild(t);
+    c.appendChild(b);
+  });
+}
+function renderGal(){
+  if(galDone) return; galDone = true;
+  var g = $("grid");
+  GALLERY.forEach(function(x){
+    var b = document.createElement("button"); b.type = "button"; b.className = "tile";
+    if(x.src){ var im = document.createElement("img"); im.src = x.src; im.alt = x.cap; b.appendChild(im); }
+    else { b.textContent = x.cap; }
+    b.addEventListener("click", function(){
+      var gi = $("gi");
+      if(x.src){ gi.src = x.src; gi.alt = x.cap; gi.hidden = false; } else { gi.removeAttribute("src"); gi.hidden = true; }
+      $("gc").textContent = x.cap; $("gv").hidden = false;
+    });
+    g.appendChild(b);
+  });
+}
+
+// Segreteria: l'audio parte da un tocco diretto sul tasto play (nessun problema su iPhone).
+function fmt(s){ s = Math.floor(s || 0); return Math.floor(s/60) + ":" + ("0" + (s%60)).slice(-2); }
+function vmLabel(){ $("vs").textContent = "Oggi, 21:10 · " + fmt(vm.currentTime) + (isFinite(vm.duration) ? " / " + fmt(vm.duration) : ""); }
+$("vp").addEventListener("click", function(){
+  if(vm.paused){
+    pauseVoices();
+    var pr = vm.play();
+    if(pr && pr.catch) pr.catch(function(){ $("vs").textContent = "Impossibile riprodurre il messaggio."; });
+  } else { vm.pause(); }
+});
+vm.addEventListener("play", function(){ $("vp").textContent = "⏸"; $("vp").setAttribute("aria-label","Pausa"); });
+vm.addEventListener("pause", function(){ $("vp").textContent = "▶"; $("vp").setAttribute("aria-label","Riproduci"); });
+vm.addEventListener("ended", function(){ vm.currentTime = 0; $("pg").style.width = "0"; vmLabel(); });
+vm.addEventListener("loadedmetadata", vmLabel);
+vm.addEventListener("timeupdate", function(){
+  if(isFinite(vm.duration) && vm.duration > 0) $("pg").style.width = (vm.currentTime / vm.duration * 100) + "%";
+  vmLabel();
+});
+vm.addEventListener("error", function(){ $("vs").textContent = "File audio non trovato."; });
+
+document.addEventListener("click", function(ev){
+  var t = ev.target.closest ? ev.target : null; if(!t) return;
+  var app = t.closest("[data-app]"); if(app){ openApp(app.getAttribute("data-app")); return; }
+  if(t.closest("[data-home]")){ goHome(); return; }
+  var pb = t.closest("[data-p]");
+  if(pb && pinFor && !pinBusy && buf.length < 4){ buf += pb.getAttribute("data-p"); drawDots(); if(buf.length === 4) checkPin(); return; }
+  if(t.closest("#pdel")){ buf = buf.slice(0,-1); drawDots(); return; }
+  if(t.closest("#gv")){ $("gv").hidden = true; }
+});
+</script>
+</body>
+</html>
